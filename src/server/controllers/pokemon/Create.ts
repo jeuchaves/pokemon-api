@@ -36,14 +36,14 @@ export const create = async (req: Request<IParamProps>, res: Response) => {
     const data = await getPokemonByName(req.params.name);
 
     // Salva os movimentos no banco de dados
-    const movimentos = await Promise.all(
+    const movimentosId = await Promise.all(
         data.moves.map(async (move) => {
             return await MovimentosProvider.create({ nome: move.move.name });
         })
     );
 
     // Salva as habilidades no banco de dados
-    const habilidades = await Promise.all(
+    const habilidadesId = await Promise.all(
         data.abilities.map(async (ability) => {
             return await HabilidadesProvider.create({
                 nome: ability.ability.name,
@@ -76,5 +76,11 @@ export const create = async (req: Request<IParamProps>, res: Response) => {
         peso: data.weight,
     });
 
-    return res.status(StatusCodes.OK).json('Funcionou');
+    return res.status(StatusCodes.OK).json({
+        habilidades: habilidadesId,
+        movimentos: movimentosId,
+        tipos: tiposId,
+        statuses: statusesId,
+        pokemon: pokemonId,
+    });
 };
