@@ -10,6 +10,20 @@ export async function up(knex: Knex) {
 
             table.primary(['status_id', 'pokemon_id']);
 
+            table
+                .foreign('status_id')
+                .references('id')
+                .inTable(ETableNames.status)
+                .onUpdate('CASCADE')
+                .onDelete('RESTRICT');
+
+            table
+                .foreign('pokemon_id')
+                .references('id')
+                .inTable(ETableNames.pokemon)
+                .onUpdate('CASCADE')
+                .onDelete('RESTRICT');
+
             table.comment(
                 'Tabela usada para armazenar a relação entre pokemon e status'
             );

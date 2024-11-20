@@ -10,6 +10,20 @@ export async function up(knex: Knex) {
 
             table.primary(['habilidade_id', 'pokemon_id']);
 
+            table
+                .foreign('habilidade_id')
+                .references('id')
+                .inTable(ETableNames.habilidade)
+                .onUpdate('CASCADE')
+                .onDelete('RESTRICT');
+
+            table
+                .foreign('pokemon_id')
+                .references('id')
+                .inTable(ETableNames.pokemon)
+                .onUpdate('CASCADE')
+                .onDelete('RESTRICT');
+
             table.comment(
                 'Tabela usada para armazenar a relação entre pokemon e habilidade'
             );
