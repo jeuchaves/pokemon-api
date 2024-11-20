@@ -40,6 +40,14 @@ export const create = async (req: Request<IParamProps>, res: Response) => {
     // Busca os dados da API
     const data = await getPokemonByName(req.params.name);
 
+    if (data instanceof Error) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            errors: {
+                api: data.message,
+            },
+        });
+    }
+
     // Salva os movimentos no banco de dados
     const movimentosId = await Promise.all(
         data.moves.map(async (move) => {
@@ -167,6 +175,6 @@ export const create = async (req: Request<IParamProps>, res: Response) => {
 
     return res.status(StatusCodes.OK).json({
         message: 'Pokemon salvo com sucesso.',
-        pokemonId: pokemonId,
+        id: pokemonId,
     });
 };
