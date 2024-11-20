@@ -13,7 +13,8 @@
         "knex:rollback-all": "npx knex --knexfile ./src/server/database/knex/Environment.ts migrate:rollback --all",
         "knex:rollback": "npx knex --knexfile ./src/server/database/knex/Environment.ts migrate:rollback",
         "knex:migrate": "npx knex --knexfile ./src/server/database/knex/Environment.ts migrate:latest",
-        "knex:seed": "npx knex --knexfile ./src/server/database/knex/Environment.ts seed:run"
+        "knex:seed": "npx knex --knexfile ./src/server/database/knex/Environment.ts seed:run",
+        "generate-pokemons": "ts-node scripts/seedDatabase.ts"
     },
     "author": "Jeú Chaves",
     "license": "ISC",
