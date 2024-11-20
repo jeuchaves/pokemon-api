@@ -46,11 +46,12 @@ export const create = async (req: Request<IParamProps>, res: Response) => {
     );
 
     // Salva as habilidades no banco de dados
-    const habilidadesId = await Promise.all(
+    const habilidades = await Promise.all(
         data.abilities.map(async (ability) => {
-            return await HabilidadesProvider.create({
+            const habilidadeId = await HabilidadesProvider.create({
                 nome: ability.ability.name,
             });
+            return { id: habilidadeId, is_hidden: ability.is_hidden };
         })
     );
 
@@ -62,9 +63,12 @@ export const create = async (req: Request<IParamProps>, res: Response) => {
     );
 
     // Salve os status no banco de dados
-    const statusesId = await Promise.all(
+    const statuses = await Promise.all(
         data.stats.map(async (status) => {
-            return await StatusProvider.create({ nome: status.stat.name });
+            const statusId = await StatusProvider.create({
+                nome: status.stat.name,
+            });
+            return { id: statusId, base: status.base_stat };
         })
     );
 
@@ -81,9 +85,9 @@ export const create = async (req: Request<IParamProps>, res: Response) => {
 
     if (
         hasError(movimentosId) ||
-        hasError(habilidadesId) ||
+        habilidades.some((habilidade) => habilidade.id instanceof Error) ||
         hasError(tiposId) ||
-        hasError(statusesId) ||
+        statuses.some((status) => status instanceof Error) ||
         pokemonId instanceof Error
     ) {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -115,31 +119,28 @@ export const create = async (req: Request<IParamProps>, res: Response) => {
 
     // Relaciona os status com o pokemon
     await Promise.all(
-        statusesId.map(async (statusId) => {
+        statuses.map(async (status) => {
             return await StatusProvider.RelateToPokemon(
                 pokemonId as number,
-                statusId as number,
-                100
+                status.id as number,
+                status.base
             );
         })
     );
 
     // Relaciona as habilidades com o pokemon
     await Promise.all(
-        habilidadesId.map(async (habilidadeId) => {
+        habilidades.map(async (habilidade) => {
             return await HabilidadesProvider.RelateToPokemon(
                 pokemonId as number,
-                habilidadeId as number,
-                true
+                habilidade.id as number,
+                habilidade.is_hidden
             );
         })
     );
 
     return res.status(StatusCodes.OK).json({
-        habilidades: habilidadesId,
-        movimentos: movimentosId,
-        tipos: tiposId,
-        statuses: statusesId,
-        pokemon: pokemonId,
+        message: 'Pokemon salvo com sucesso.',
+        pokemonId: pokemonId,
     });
 };
