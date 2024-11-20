@@ -3,6 +3,7 @@ import { Router } from 'express';
 import {
     CidadesController,
     PessoasController,
+    PokemonController,
     UsuariosController,
 } from './../controllers';
 import { ensureAuthenticated } from '../shared/middleware';
@@ -87,6 +88,13 @@ router.post(
     '/cadastrar',
     UsuariosController.signUpValidation,
     UsuariosController.signUp
+);
+
+// Pokemon
+router.post(
+    '/pokemon/:name',
+    PokemonController.createValidation,
+    PokemonController.create
 );
 
 export { router };
