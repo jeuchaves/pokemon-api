@@ -23,6 +23,7 @@ export const createValidation = validation((getSchema) => ({
     ),
 }));
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getErrors = (arr: (any | Error)[]): Error[] => {
     return arr.filter((item) => item instanceof Error) as Error[];
 };
