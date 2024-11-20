@@ -9,8 +9,12 @@ export const getPokemonByName = async (
             `pokemon/${name}`
         );
         return response.data;
-    } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
         console.log(error);
+        if (error.response && error.response.status === 404) {
+            return Error('Pokemon não encontrado');
+        }
         return Error('Erro ao buscar o pokemon na API');
     }
 };
