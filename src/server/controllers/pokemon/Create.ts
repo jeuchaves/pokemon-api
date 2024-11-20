@@ -23,6 +23,9 @@ export const createValidation = validation((getSchema) => ({
     ),
 }));
 
+const hasError = (arr: (number | Error)[]): boolean =>
+    arr.some((item) => item instanceof Error);
+
 export const create = async (req: Request<IParamProps>, res: Response) => {
     if (!req.params.name) {
         return res.status(StatusCodes.BAD_REQUEST).json({
@@ -75,6 +78,62 @@ export const create = async (req: Request<IParamProps>, res: Response) => {
         is_default: data.is_default,
         peso: data.weight,
     });
+
+    if (
+        hasError(movimentosId) ||
+        hasError(habilidadesId) ||
+        hasError(tiposId) ||
+        hasError(statusesId) ||
+        pokemonId instanceof Error
+    ) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            errors: {
+                default: 'Erro ao salvar os dados no banco de dados.',
+            },
+        });
+    }
+
+    // Relaciona os movimentos com o pokemon
+    await Promise.all(
+        movimentosId.map(async (movimentoId) => {
+            return await MovimentosProvider.RelateToPokemon(
+                pokemonId as number,
+                movimentoId as number
+            );
+        })
+    );
+
+    // Relaciona os tipos com o pokemon
+    await Promise.all(
+        tiposId.map(async (tipoId) => {
+            return await TiposProvider.RelateToPokemon(
+                pokemonId as number,
+                tipoId as number
+            );
+        })
+    );
+
+    // Relaciona os status com o pokemon
+    await Promise.all(
+        statusesId.map(async (statusId) => {
+            return await StatusProvider.RelateToPokemon(
+                pokemonId as number,
+                statusId as number,
+                100
+            );
+        })
+    );
+
+    // Relaciona as habilidades com o pokemon
+    await Promise.all(
+        habilidadesId.map(async (habilidadeId) => {
+            return await HabilidadesProvider.RelateToPokemon(
+                pokemonId as number,
+                habilidadeId as number,
+                true
+            );
+        })
+    );
 
     return res.status(StatusCodes.OK).json({
         habilidades: habilidadesId,
