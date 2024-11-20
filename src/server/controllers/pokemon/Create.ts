@@ -23,8 +23,9 @@ export const createValidation = validation((getSchema) => ({
     ),
 }));
 
-const hasError = (arr: (number | Error)[]): boolean =>
-    arr.some((item) => item instanceof Error);
+const getErrors = (arr: (any | Error)[]): Error[] => {
+    return arr.filter((item) => item instanceof Error) as Error[];
+};
 
 export const create = async (req: Request<IParamProps>, res: Response) => {
     if (!req.params.name) {
@@ -84,16 +85,40 @@ export const create = async (req: Request<IParamProps>, res: Response) => {
     });
 
     if (
-        hasError(movimentosId) ||
-        habilidades.some((habilidade) => habilidade.id instanceof Error) ||
-        hasError(tiposId) ||
-        statuses.some((status) => status instanceof Error) ||
-        pokemonId instanceof Error
+        getErrors(movimentosId).length > 0 ||
+        getErrors(habilidades).length > 0 ||
+        getErrors(tiposId).length > 0 ||
+        getErrors(statuses).length > 0 ||
+        getErrors([pokemonId]).length > 0
     ) {
+        const errors: Record<string, string[]> = {};
+
+        if (getErrors(movimentosId).length > 0) {
+            errors.movimentos = getErrors(movimentosId).map(
+                (err) => err.message
+            );
+        }
+
+        if (getErrors(habilidades).length > 0) {
+            errors.habilidades = getErrors(habilidades).map(
+                (err) => err.message
+            );
+        }
+
+        if (getErrors(tiposId).length > 0) {
+            errors.tipos = getErrors(tiposId).map((err) => err.message);
+        }
+
+        if (getErrors(statuses).length > 0) {
+            errors.status = getErrors(statuses).map((err) => err.message);
+        }
+
+        if (getErrors([pokemonId]).length > 0) {
+            errors.pokemon = getErrors([pokemonId]).map((err) => err.message);
+        }
+
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            errors: {
-                default: 'Erro ao salvar os dados no banco de dados.',
-            },
+            errors,
         });
     }
 

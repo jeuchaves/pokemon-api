@@ -4,6 +4,13 @@ import { Pokemon } from '../../models/Pokemon';
 
 export const create = async (pokemon: Pokemon): Promise<number | Error> => {
     try {
+        const existingPokemon = await Knex(ETableNames.pokemon)
+            .select('id')
+            .where('id', '=', pokemon.id)
+            .first();
+        if (existingPokemon) {
+            return Error('Pokemon já cadastrado');
+        }
         const [result] = await Knex(ETableNames.pokemon)
             .insert(pokemon)
             .returning('id');
