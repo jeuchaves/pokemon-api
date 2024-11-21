@@ -3,7 +3,7 @@ import axios from 'axios';
 const getRandomNumbers = (size: number): number[] => {
     const numbers: number[] = [];
     for (let i = 0; i < size; i++) {
-        numbers.push(Math.floor(Math.random() * 1301) + 1);
+        numbers.push(Math.floor(Math.random() * 1000) + 1);
     }
     return numbers;
 };
