@@ -1,7 +1,4 @@
 export enum ETableNames {
-    cidade = 'cidades',
-    pessoa = 'pessoas',
-    usuario = 'usuarios',
     movimento = 'movimentos',
     status = 'status',
     pokemon = 'pokemons',
